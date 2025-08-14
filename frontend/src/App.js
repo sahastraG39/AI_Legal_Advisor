@@ -19,6 +19,7 @@ function App() {
             <Route path="/upload" element={<DocumentUpload />} />
             <Route path="/search" element={<DocumentSearch />} />
             <Route path="/analysis" element={<DocumentAnalysis />} />
+            <Route path="/analysis/:fileId" element={<DocumentAnalysis />} />
           </Routes>
         </main>
         <Toaster 

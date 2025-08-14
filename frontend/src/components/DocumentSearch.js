@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, FileText, Calendar, User, ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const DocumentSearch = () => {
   const [query, setQuery] = useState('');
@@ -11,6 +12,7 @@ const DocumentSearch = () => {
   const [threshold, setThreshold] = useState(0.5);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchDocuments();
@@ -37,11 +39,8 @@ const DocumentSearch = () => {
 
     setSearching(true);
     try {
-      const response = await axios.post('/api/search', {
-        query: query.trim(),
-        top_k: topK,
-        threshold: threshold
-      });
+      // Use GET method for search as it's more reliable
+      const response = await axios.get(`/api/search?query=${encodeURIComponent(query.trim())}&top_k=${topK}&threshold=${threshold}`);
       
       setSearchResults(response.data.results || []);
       toast.success(`Found ${response.data.total_found} results`);
@@ -51,6 +50,27 @@ const DocumentSearch = () => {
       setSearchResults([]);
     } finally {
       setSearching(false);
+    }
+  };
+
+  const handleViewAnalysis = (fileId) => {
+    // Navigate to document analysis page using React Router
+    navigate(`/analysis/${fileId}`);
+  };
+
+  const handleViewAnalysisDirect = async (fileId) => {
+    try {
+      // Get document analysis directly
+      const response = await axios.get(`/api/document/${fileId}`);
+      if (response.data) {
+        // Show analysis in a modal or navigate to analysis page
+        console.log('Document analysis:', response.data);
+        // Navigate to analysis page with the document data
+        navigate(`/analysis/${fileId}`);
+      }
+    } catch (error) {
+      console.error('Failed to get document analysis:', error);
+      toast.error('Failed to load document analysis');
     }
   };
 
@@ -196,41 +216,44 @@ const DocumentSearch = () => {
                     <div className="flex items-center space-x-3 mb-2">
                       <FileText className="h-5 w-5 text-blue-600" />
                       <h3 className="text-lg font-medium text-gray-900">
-                        {result.metadata?.filename || `Document ${index + 1}`}
+                        {result.filename || `Document ${index + 1}`}
                       </h3>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getDocumentType(result.metadata?.filename || '').color}`}>
-                        {getDocumentType(result.metadata?.filename || '').type}
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getDocumentType(result.filename || '').color}`}>
+                        {getDocumentType(result.filename || '').type}
                       </span>
                     </div>
                     
-                    {result.metadata?.similarity && (
+                    {result.relevance_score && (
                       <div className="mb-2">
-                        <span className="text-sm text-gray-600">Similarity Score: </span>
+                        <span className="text-sm text-gray-600">Relevance Score: </span>
                         <span className="text-sm font-medium text-blue-600">
-                          {(result.metadata.similarity * 100).toFixed(1)}%
+                          {(result.relevance_score * 100).toFixed(1)}%
                         </span>
                       </div>
                     )}
                     
                     <p className="text-gray-700 mb-3">
-                      {result.text || result.content || 'No content available'}
+                      {result.match_type === 'filename_match' ? 'Filename matches your search query' : 'General document match'}
                     </p>
                     
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-4 w-4" />
-                        <span>{formatDate(result.metadata?.upload_time)}</span>
+                        <span>{formatDate(result.upload_time)}</span>
                       </div>
-                      {result.metadata?.file_size && (
-                        <div className="flex items-center space-x-1">
-                          <FileText className="h-4 w-4" />
-                          <span>{(result.metadata.file_size / 1024 / 1024).toFixed(2)} MB</span>
-                        </div>
-                      )}
+                      <div className="flex items-center space-x-1">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(result.status)}`}>
+                          {result.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   
-                  <button className="ml-4 p-2 text-gray-400 hover:text-blue-600 transition-colors duration-200">
+                  <button 
+                    onClick={() => handleViewAnalysisDirect(result.document_id)}
+                    className="ml-4 p-2 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                    title="View Analysis"
+                  >
                     <ArrowRight className="h-5 w-5" />
                   </button>
                 </div>
@@ -281,7 +304,10 @@ const DocumentSearch = () => {
                   </div>
                   
                   {doc.status === 'completed' && (
-                    <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                    <button 
+                      onClick={() => handleViewAnalysis(fileId)}
+                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                    >
                       View Analysis
                     </button>
                   )}
