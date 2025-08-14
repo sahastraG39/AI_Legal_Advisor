@@ -1,0 +1,104 @@
+{
+  "name": "Legal Document Annotation Schema v1.0",
+  "version": "1.0.0",
+  "clause_types": [
+    {
+      "type": "termination",
+      "description": "Clauses related to contract termination",
+      "examples": [
+        "termination for cause",
+        "termination without cause"
+      ],
+      "required_fields": [
+        "risk_level",
+        "importance_score"
+      ]
+    },
+    {
+      "type": "liability",
+      "description": "Clauses defining liability and responsibility",
+      "examples": [
+        "limitation of liability",
+        "indemnification"
+      ],
+      "required_fields": [
+        "risk_level",
+        "importance_score"
+      ]
+    },
+    {
+      "type": "confidentiality",
+      "description": "Clauses related to information confidentiality",
+      "examples": [
+        "non-disclosure",
+        "confidential information"
+      ],
+      "required_fields": [
+        "risk_level",
+        "importance_score"
+      ]
+    }
+  ],
+  "risk_levels": [
+    {
+      "level": "low",
+      "description": "Minimal legal or financial risk",
+      "score_range": [
+        0.0,
+        0.3
+      ]
+    },
+    {
+      "level": "medium",
+      "description": "Moderate legal or financial risk",
+      "score_range": [
+        0.3,
+        0.6
+      ]
+    },
+    {
+      "level": "high",
+      "description": "Significant legal or financial risk",
+      "score_range": [
+        0.6,
+        0.8
+      ]
+    },
+    {
+      "level": "critical",
+      "description": "Severe legal or financial risk",
+      "score_range": [
+        0.8,
+        1.0
+      ]
+    }
+  ],
+  "tags": [
+    "contract_formation",
+    "performance",
+    "breach",
+    "remedies",
+    "governing_law",
+    "jurisdiction",
+    "arbitration",
+    "mediation"
+  ],
+  "validation_rules": {
+    "min_confidence": 0.7,
+    "required_fields": [
+      "clause_type",
+      "risk_level",
+      "importance_score"
+    ],
+    "risk_score_range": [
+      0.0,
+      1.0
+    ],
+    "importance_score_range": [
+      0.0,
+      1.0
+    ]
+  },
+  "created_at": "2025-08-14T11:33:52.156119",
+  "updated_at": "2025-08-14T11:33:52.156149"
+}

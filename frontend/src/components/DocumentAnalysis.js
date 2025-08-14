@@ -15,7 +15,7 @@ const DocumentAnalysis = () => {
 
   const fetchDocuments = async () => {
     try {
-      const response = await axios.get('/documents');
+      const response = await axios.get('/api/documents');
       const docs = response.data.processing_status || {};
       const completedDocs = Object.entries(docs)
         .filter(([_, doc]) => doc.status === 'completed')
@@ -33,7 +33,7 @@ const DocumentAnalysis = () => {
   const analyzeDocument = async (documentId) => {
     setAnalyzing(true);
     try {
-      const response = await axios.get(`/document/${documentId}`);
+              const response = await axios.get(`/api/document/${documentId}`);
       setSelectedDocument(response.data);
       toast.success('Document analysis loaded');
     } catch (error) {

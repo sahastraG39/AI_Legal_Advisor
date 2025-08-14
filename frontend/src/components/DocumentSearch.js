@@ -18,7 +18,7 @@ const DocumentSearch = () => {
 
   const fetchDocuments = async () => {
     try {
-      const response = await axios.get('/documents');
+      const response = await axios.get('/api/documents');
       setDocuments(response.data.processing_status || {});
       setLoading(false);
     } catch (error) {
@@ -37,7 +37,7 @@ const DocumentSearch = () => {
 
     setSearching(true);
     try {
-      const response = await axios.post('/search', {
+      const response = await axios.post('/api/search', {
         query: query.trim(),
         top_k: topK,
         threshold: threshold
